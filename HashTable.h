@@ -42,6 +42,22 @@ private:
         delete[] oldTable;
     }
 
+    int findNode(const TKey& key) const {
+        int index = hashKey(key);
+        int originalIndex = index;
+
+        while (table[index].occupied) {
+            if (table[index].key == key) {
+                return index;
+            }
+            index = (index + 1) % capacity;
+            if (index == originalIndex) {
+                break;
+            }
+        }
+        return -1;
+    }
+
 public:
     explicit HashTable(int initialCapacity = 25)
         : capacity(initialCapacity), count(0) {
@@ -56,20 +72,13 @@ public:
     int GetCapacity() const { return capacity; }
 
     TElement Get(const TKey& key) const {
-        int index = hashKey(key);
-        int originalIndex = index;
-
-        while (table[index].occupied) {
-            if (table[index].key == key) {
-                return table[index].element;
-            }
-            index = (index + 1) % capacity;
-            if (index == originalIndex) {
-                break;
-            }
+        int index = findNode(key);
+        if (index == -1) {
+            throw std::runtime_error("Element not found");
         }
-        throw std::runtime_error("Element not found");
+        return table[index].element;
     }
+
 
     void Add(const TKey& key, const TElement& element) {
         if (count >= capacity * 0.75) {
@@ -86,7 +95,7 @@ public:
             }
             index = (index + 1) % capacity;
             if (index == originalIndex) {
-                throw std::runtime_error("Hash table is full"); // Эта строка теперь никогда не должна вызываться
+                throw std::runtime_error("Hash table is full");
             }
         }
 
@@ -96,42 +105,20 @@ public:
         ++count;
     }
 
-
     void Remove(const TKey& key) {
-        int index = hashKey(key);
-        int originalIndex = index;
-
-        while (table[index].occupied) {
-            if (table[index].key == key) {
-                table[index].occupied = false;
-                --count;
-                return;
-            }
-            index = (index + 1) % capacity;
-            if (index == originalIndex) {
-                break;
-            }
+        int index = findNode(key);
+        if (index == -1) {
+            throw std::runtime_error("Element not found");
         }
-        throw std::runtime_error("Element not found");
+
+        table[index].occupied = false;
+        --count;
     }
 
     bool ContainsKey(const TKey& key) const {
-        int index = hashKey(key);
-        int originalIndex = index;
-
-        while (table[index].occupied) {
-            if (table[index].key == key) {
-                return true;
-            }
-            index = (index + 1) % capacity;
-            if (index == originalIndex) {
-                break;
-            }
-        }
-        return false;
+        return findNode(key) != -1;
     }
 
-    // Итератор
     class Iterator {
     private:
         const HashTable* hashTable;
