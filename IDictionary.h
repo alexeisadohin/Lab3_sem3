@@ -24,7 +24,7 @@ public:
     };
 
 
-    virtual Iterator* begin() = 0;
-    virtual Iterator* end() = 0;
+    virtual ShrdPtr<Iterator> begin() = 0;
+    virtual ShrdPtr<Iterator> end() = 0;
 };
 #endif //IDICTIONARY_H
