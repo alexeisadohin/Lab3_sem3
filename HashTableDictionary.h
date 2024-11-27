@@ -50,12 +50,14 @@ public:
         return hashTable.GetAllItems();
     }
 
-    typename IDictionary<TKey, TElement>::Iterator* begin() override {
-        return new HashTableDictionaryIterator(hashTable.begin());
+    ShrdPtr<typename IDictionary<TKey, TElement>::Iterator> begin() override {
+        return ShrdPtr<typename IDictionary<TKey, TElement>::Iterator>(
+            new HashTableDictionaryIterator(hashTable.begin()));
     }
 
-    typename IDictionary<TKey, TElement>::Iterator* end() override {
-        return new HashTableDictionaryIterator(hashTable.end());
+    ShrdPtr<typename IDictionary<TKey, TElement>::Iterator> end() override {
+        return ShrdPtr<typename IDictionary<TKey, TElement>::Iterator>(
+            new HashTableDictionaryIterator(hashTable.end()));
     }
 };
 
