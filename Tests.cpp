@@ -31,6 +31,7 @@ void TestHashTable() {
 
     // Тест: Удаление элемента
     hashTable.Remove(2);
+
     assert(hashTable.ContainsKey(2) == false);
 
     // Тест: Исключение при получении несуществующего элемента
@@ -83,12 +84,63 @@ void TestHashTable() {
 
     // Тест: GetAllItems
     auto allItems = hashTable.GetAllItems();
-    // assert(allItems->GetLength() == hashTable.GetCount());
+    assert(allItems->GetLength() == hashTable.GetCount());
     std::cout<<"Getlength:" <<allItems->GetLength()<<std::endl;
     std::cout<< "getcount:"<<hashTable.GetCount()<<std::endl;
     for (int i = 0; i < allItems->GetLength(); ++i) {
         auto item = allItems->Get(i);
         assert(hashTable.Get(item.first) == item.second);
+    }
+
+    // Тест: Удаление элемента из начала таблицы
+    hashTable.Add(100, "hundred");
+    hashTable.Remove(100);
+
+    assert(hashTable.ContainsKey(100) == false);
+
+    // Тест: Коллизии
+    struct CustomHash {
+        int operator()(int key) const {
+            return key % 10; // Намеренно создаем коллизии
+        }
+    };
+
+    HashTable<int, std::string, CustomHash> hashTableWithCollisions;
+
+    hashTableWithCollisions.Add(10, "ten");
+    hashTableWithCollisions.Add(20, "twenty");
+    hashTableWithCollisions.Add(30, "thirty");
+
+    assert(hashTableWithCollisions.Get(10) == "ten");
+    assert(hashTableWithCollisions.Get(20) == "twenty");
+    assert(hashTableWithCollisions.Get(30) == "thirty");
+
+    hashTableWithCollisions.Remove(20);
+
+    assert(hashTableWithCollisions.ContainsKey(20) == false);
+
+    assert(hashTableWithCollisions.Get(10) == "ten");
+
+    assert(hashTableWithCollisions.Get(30) == "thirty");
+
+    try {
+        hashTable.Get(100);
+        assert(false);
+    } catch (const std::runtime_error& e) {
+        assert(std::string(e.what()) == "Element not found");
+    }
+
+    // Тест: Перезапись при коллизиях
+    hashTableWithCollisions.Add(30, "new_thirty");
+    assert(hashTableWithCollisions.Get(30) == "new_thirty");
+
+    // Тест: Удаление всех элементов
+    hashTable.RemoveAll();
+    std::cout << "Before assert: GetCount = " << hashTable.GetCount() << std::endl;
+
+    assert(hashTable.GetCount() == 0);
+    for (int i = 6; i < 30; ++i) {
+        assert(hashTable.ContainsKey(i) == false);
     }
 
     std::cout << "HT tests passed successfully!" << std::endl;
