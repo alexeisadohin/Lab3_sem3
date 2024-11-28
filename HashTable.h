@@ -12,7 +12,7 @@ private:
         TKey key;
         TElement element;
         bool occupied;
-
+        bool wasDeleted;
         Entry() : occupied(false) {}
     };
 
@@ -34,10 +34,11 @@ private:
         table = new Entry[capacity];
 
         for (int i = 0; i < oldCapacity; ++i) {
-            if (oldTable[i].occupied) {
+            if (oldTable[i].occupied && !oldTable[i].wasDeleted) {
                 Add(oldTable[i].key, oldTable[i].element);
             }
         }
+
 
         delete[] oldTable;
     }
@@ -46,8 +47,8 @@ private:
         int index = hashKey(key);
         int originalIndex = index;
 
-        while (table[index].occupied) {
-            if (table[index].key == key) {
+        while (table[index].occupied || table[index].wasDeleted) {
+            if (table[index].occupied && table[index].key == key) {
                 return index;
             }
             index = (index + 1) % capacity;
@@ -57,6 +58,7 @@ private:
         }
         return -1;
     }
+
 
 public:
     explicit HashTable(int initialCapacity = 25)
@@ -111,8 +113,22 @@ public:
             throw std::runtime_error("Element not found");
         }
 
-        table[index].occupied = false;
-        --count;
+        if (table[index].occupied) {
+            table[index].occupied = false;
+            table[index].wasDeleted = true;
+            --count;
+        }
+    }
+
+    void RemoveAll() {
+        for (int i = 0; i < capacity; ++i) {
+            if (table[i].occupied && !table[i].wasDeleted) {
+                table[i].occupied = false;
+                table[i].wasDeleted = true;
+                --count;
+            }
+        }
+
     }
 
     bool ContainsKey(const TKey& key) const {
