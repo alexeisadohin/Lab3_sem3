@@ -20,7 +20,7 @@ public:
     }
 
     std::string toString() const {
-        return "[" + std::to_string(start) + ", " + std::to_string(end) + ")";
+        return "[" + std::to_string(start) + ", " + std::to_string(end) + "]";
     }
 
     bool operator<(const Interval<T, Comparator>& other) const {
